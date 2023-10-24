@@ -98,6 +98,8 @@ class HandleComponents
         if (config('app.debug')) $start = microtime(true);
         [ $component, $context ] = $this->fromSnapshot($snapshot);
 
+        $component->__context = $context;
+
         $this->pushOntoComponentStack($component);
 
         trigger('hydrate', $component, $memo, $context);
@@ -113,17 +115,19 @@ class HandleComponents
             if (config('app.debug')) trigger('profile', 'render', $component->getId(), [$start, microtime(true)]);
         }
 
-        if (config('app.debug')) $start = microtime(true);
-        trigger('dehydrate', $component, $context);
+        return function () use ($component, $context) {
+            if (config('app.debug')) $start = microtime(true);
+            trigger('dehydrate', $component, $context);
 
-        $snapshot = $this->snapshot($component, $context);
-        if (config('app.debug')) trigger('profile', 'dehydrate', $component->getId(), [$start, microtime(true)]);
+            $snapshot = $this->snapshot($component, $context);
+            if (config('app.debug')) trigger('profile', 'dehydrate', $component->getId(), [$start, microtime(true)]);
 
-        trigger('destroy', $component, $context);
+            trigger('destroy', $component, $context);
 
-        $this->popOffComponentStack();
+            $this->popOffComponentStack();
 
-        return [ $snapshot, $context->effects ];
+            return [ $snapshot, $context->effects ];
+        };
     }
 
     public function fromSnapshot($snapshot)

@@ -34,6 +34,23 @@ abstract class Component
     protected $__id;
     protected $__name;
 
+    public $__context;
+
+    public function rerender($childId)
+    {
+        // dd(store($this)->get('children'));
+        // store($this)->set('previousChildren', []);
+
+        store($this)->set('previousChildren', [
+            "div",
+            $childId,
+        ]);
+        if ($html = invade(app(\Livewire\Mechanisms\HandleComponents\HandleComponents::class))->render($this)) {
+            $this->__context->addEffect('html', $html);
+            // if (config('app.debug')) trigger('profile', 'render', $component->getId(), [$start, microtime(true)]);
+        }
+    }
+
     function id()
     {
         return $this->getId();

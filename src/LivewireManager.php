@@ -22,6 +22,11 @@ class LivewireManager
         $this->provider = $provider;
     }
 
+    public function all()
+    {
+        return app(ComponentRegistry::class)->components;
+    }
+
     function provide($callback)
     {
         \Closure::bind($callback, $this->provider, $this->provider::class)();

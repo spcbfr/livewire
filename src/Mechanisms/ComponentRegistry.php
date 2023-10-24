@@ -30,6 +30,8 @@ class ComponentRegistry
         }
     }
 
+    public $components = [];
+
     function new($nameOrClass, $id = null)
     {
         [$class, $name] = $this->getNameAndClass($nameOrClass);
@@ -49,6 +51,8 @@ class ComponentRegistry
 
         //     $component->$key = $value;
         // }
+
+        $this->components[] = $component;
 
         return $component;
     }

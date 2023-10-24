@@ -90,6 +90,56 @@ class BrowserTest extends \Tests\BrowserTestCase
     }
 
     /** @test */
+    public function rm_me()
+    {
+        Livewire::visit([
+            new class extends Component {
+                public $count = 0;
+
+                public function inc()
+                {
+                    $this->count++;
+                }
+
+                public function render()
+                {
+                    return <<<'HTML'
+                    <div>
+                        <button type="button" wire:click="$refresh" dusk="refresh">
+                            Refresh
+                        </button>
+
+                        <h1>Count: {{ $count }}</h1>
+
+                        <livewire:child />
+                    </div>
+                    HTML;
+                }
+            },
+            'child' => new class extends Component {
+                public function delete()
+                {
+                    $parent = app('livewire')->all()[0];
+
+                    $parent->inc();
+                    $parent->rerender($this->getId());
+                }
+
+                public function render()
+                {
+                    return <<<'HTML'
+                    <div dusk="child">
+                        <button wire:click="delete">delete</button>
+                    </div>
+                    HTML;
+                }
+            },
+        ])
+        ->tinker()
+        ;
+    }
+
+    /** @test */
     public function nested_components_do_not_error_when_parent_has_custom_layout_and_default_layout_does_not_exist()
     {
         config()->set('livewire.layout', '');

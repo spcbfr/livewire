@@ -79,14 +79,24 @@ class HandleRequests
     {
         $components = request('components');
 
+        $components = array_reverse($components);
+
         $responses = [];
+
+        $dehydrates = [];
 
         foreach ($components as $component) {
             $snapshot = json_decode($component['snapshot'], associative: true);
             $updates = $component['updates'];
             $calls = $component['calls'];
 
-            [ $snapshot, $effects ] = app('livewire')->update($snapshot, $updates, $calls);
+            $dehydrates[] = app('livewire')->update($snapshot, $updates, $calls);
+        }
+
+        while ($dehydrates) {
+            $dehydrate = array_shift($dehydrates);
+
+            [ $snapshot, $effects ] = $dehydrate();
 
             $responses[] = [
                 'snapshot' => json_encode($snapshot),
@@ -95,7 +105,7 @@ class HandleRequests
         }
 
         $response = [
-            'components' => $responses,
+            'components' => array_reverse($responses),
         ];
 
         $finish = trigger('profile.response', $response);

@@ -7899,11 +7899,12 @@ on("effects", (component, effects) => {
 
 // js/features/supportProps.js
 on("commit.prepare", ({ component }) => {
+  Livewire.all().forEach((i) => {
+    i.$wire.$commit();
+  });
   getChildrenRecursively(component, (child) => {
     let childMeta = child.snapshot.memo;
     let props = childMeta.props;
-    if (props)
-      child.$wire.$commit();
   });
 });
 function getChildrenRecursively(component, callback) {
